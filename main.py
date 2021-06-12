@@ -508,7 +508,7 @@ def adaboost_regression(X, Y, X_test):
     test_pred = regression(X, Y, X_test, method='adaboost',
                            model=ensemble.AdaBoostRegressor(),
                            param_grid={'n_estimators': [100, 200, 500],
-                                       'loss': ['linear', 'square']},
+                                       'loss': ['linear', 'exponential']},
                            title='Adaboost Regression')
 
     return test_pred
@@ -516,7 +516,7 @@ def adaboost_regression(X, Y, X_test):
 
 def xgboost_regression(X, Y, X_test):
     test_pred = regression(X, Y, X_test, method='xgboost',
-                           model=xgb.XGBRegressor(alpha=1.5),
+                           model=xgb.XGBRegressor(alpha=1.2),
                            param_grid={'n_estimators': [100, 200, 500]},
                            title='XGboost Regression')
 
