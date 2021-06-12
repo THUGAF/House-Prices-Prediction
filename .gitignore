@@ -1,0 +1,7 @@
+.vscode/*
+data/
+img/
+score/
+*.csv
+*.out
+*.txt
