@@ -3,5 +3,5 @@ data/
 img/
 score/
 *.csv
-*.out
+*.log
 *.txt

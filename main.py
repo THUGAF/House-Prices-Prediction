@@ -166,8 +166,8 @@ def encode_qualitatives(train_data, test_data, features):
         ordering['ordering'] = range(1, ordering.shape[0] + 1)
         ordering = ordering['ordering'].to_dict()
         for cat, o in ordering.items():
-            train_data.loc[train_data[q] == cat, q + '_E'] = o
-            test_data.loc[test_data[q] == cat, q + '_E'] = o
+            train_data.loc[train_data[q] == cat, q] = o
+            test_data.loc[test_data[q] == cat, q] = o
     
     return train_data, test_data
 
@@ -175,6 +175,8 @@ def encode_qualitatives(train_data, test_data, features):
 def plot_correlation(data, features):
     print('\nPlot correlation heatmap of the variables.')
     corr = data[features].corr()
+    print(data[features].head())
+    print(corr.head())
     plt.figure(figsize=(20, 15), dpi=160)
     ax = sns.heatmap(corr, cmap=mpl.colors.ListedColormap(plt.cm.seismic(np.linspace(0.1, 0.9, 8))), 
                      cbar=False, vmin=-1, vmax=1, xticklabels=features, yticklabels=features)
@@ -293,6 +295,7 @@ def fill_nan(train_data, test_data, features):
 
 
 def create_new_features(train_data, test_data):
+    print('\nCreate new features.')
     for data in [train_data, test_data]:
         data['TotalHouseArea'] = data['TotalBsmtSF'] + data['1stFlrSF'] + data['2ndFlrSF']
         data['YearsSinceRemodel'] = data['YrSold'].astype(int) - data['YearRemodAdd'].astype(int)
@@ -302,33 +305,35 @@ def create_new_features(train_data, test_data):
         data['HasEnclosedPorch'] = (data['EnclosedPorch'] == 0) * 1
         data['Has3SsnPorch'] = (data['3SsnPorch'] == 0) * 1
         data['HasScreenPorch'] = (data['ScreenPorch'] == 0) * 1
-        data["TotalAllArea"] = data["TotalHouseArea"] + data["GarageArea"]
-        data["TotalHouse_and_OverallQual"] = data["TotalHouseArea"] * data["OverallQual"]
-        data["GrLivArea_and_OverallQual"] = data["GrLivArea"] * data["OverallQual"]
-        data["LotArea_and_OverallQual"] = data["LotArea"] * data["OverallQual"]
-        data["MSZoning_and_TotalHouse"] = data["labfit_MSZoning"] * data["TotalHouseArea"]
-        data["MSZoning_and_OverallQual"] = data["labfit_MSZoning"] + data["OverallQual"]
-        data["MSZoning_and_YearBuilt"] = data["labfit_MSZoning"] + data["YearBuilt"]
-        data["Neighborhood_and_TotalHouse"] = data["labfit_Neighborhood"] * data["TotalHouseArea"]
-        data["Neighborhood_and_OverallQual"] = data["labfit_Neighborhood"] + data["OverallQual"]  
-        data["Neighborhood_and_YearBuilt"] = data["labfit_Neighborhood"] + data["YearBuilt"]
-        data["BsmtFinSF1_and_OverallQual"] = data["BsmtFinSF1"] * data["OverallQual"]
-        data["Functional_and_TotalHouse"] = data["labfit_Functional"] * data["TotalHouseArea"]
-        data["Functional_and_OverallQual"] = data["labfit_Functional"] + data["OverallQual"]
-        data["TotalHouse_and_LotArea"] = data["TotalHouseArea"] + data["LotArea"]
-        data["Condition1_and_TotalHouse"] = data["labfit_Condition1"] * data["TotalHouseArea"]
-        data["Condition1_and_OverallQual"] = data["labfit_Condition1"] + data["OverallQual"]
-        data["Bsmt"] = data["BsmtFinSF1"] + data["BsmtFinSF2"] + data["BsmtUnfSF"]
+        data["TotalAllArea"] = data['TotalHouseArea'] + data['GarageArea']
+        data["TotalHouse_and_OverallQual"] = data['TotalHouseArea'] * data['OverallQual']
+        data["GrLivArea_and_OverallQual"] = data['GrLivArea'] * data['OverallQual']
+        data["LotArea_and_OverallQual"] = data['LotArea'] * data['OverallQual']
+        data["MSZoning_and_TotalHouse"] = data['MSZoning'] * data['TotalHouseArea']
+        data["MSZoning_and_OverallQual"] = data['MSZoning'] + data['OverallQual']
+        data["MSZoning_and_YearBuilt"] = data['MSZoning'] + data['YearBuilt']
+        data["Neighborhood_and_TotalHouse"] = data['Neighborhood'] * data['TotalHouseArea']
+        data["Neighborhood_and_OverallQual"] = data['Neighborhood'] + data['OverallQual']  
+        data["Neighborhood_and_YearBuilt"] = data['Neighborhood'] + data['YearBuilt']
+        data["BsmtFinSF1_and_OverallQual"] = data['BsmtFinSF1'] * data['OverallQual']
+        data["Functional_and_TotalHouse"] = data['Functional'] * data['TotalHouseArea']
+        data["Functional_and_OverallQual"] = data['Functional'] + data['OverallQual']
+        data["TotalHouse_and_LotArea"] = data['TotalHouseArea'] + data['LotArea']
+        data["Condition1_and_TotalHouse"] = data['Condition1'] * data['TotalHouseArea']
+        data["Condition1_and_OverallQual"] = data['Condition1'] + data['OverallQual']
+        data["Bsmt"] = data["BsmtFinSF1"] + data['BsmtFinSF2'] + data['BsmtUnfSF']
         data["Rooms"] = data["FullBath"]+data["TotRmsAbvGrd"]
         data["PorchArea"] = data["OpenPorchSF"] + data["EnclosedPorch"] + data["3SsnPorch"] + data["ScreenPorch"]
         data["TotalPlace"] = data["TotalAllArea"] + data["PorchArea"]
     
-    return train_data, test_data
+    all_features = list(test_data.keys())
+    
+    return train_data, test_data, all_features
 
 
 def find_major_factors(train_data, test_data, features):
     print('\nFind major factors using pearson correlations.')
-    plt.figure(figsize=(8, 6), dpi=160)
+    plt.figure(figsize=(10, 6), dpi=160)
     plt.style.use('seaborn-notebook')
     pearson_corr = []
     for f in features:
@@ -337,27 +342,27 @@ def find_major_factors(train_data, test_data, features):
     df = df.sort_values(by=[0], axis=1, ascending=False)
     df1 = df.iloc[:, 0: 40]
     df2 = df.iloc[:, 40:]
-    print(df)
     
     ax1 = plt.subplot(211)
     sns.barplot(data=df1, ax=ax1)
-    plt.xticks(rotation=90, fontsize=8)
+    plt.xticks(rotation=90, fontsize=7)
 
     ax2 = plt.subplot(212)
     sns.barplot(data=df2, ax=ax2)
-    plt.xticks(rotation=90, fontsize=8)
+    plt.xticks(rotation=90, fontsize=7)
 
-    plt.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.2, hspace=0.5)
+    plt.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.25, hspace=0.5)
     plt.savefig('img/pearson.png')
     plt.close()
 
+    major_factors = features
     for f in features:
-        if np.abs(df[f]) < 0.1:
+        if np.abs(np.float(df[f])) < 0.2:
             train_data = train_data.drop(f, axis=1)
             test_data = test_data.drop(f, axis=1)
-            features.remove(f)
+            major_factors.remove(f)
     
-    return train_data, test_data, features
+    return train_data, test_data, major_factors
 
 
 def get_values(train_data, test_data, features):
@@ -580,48 +585,47 @@ if __name__ == '__main__':
     quantitatives, qualitatives = categorize(train_data)
 
     # Check distribution of the variables 
-    # plot_distribution(train_data)
-    # check_normality(train_data)
-    # plot_quantitatives(train_data, quantitatives)
-    # plot_qualitatives(train_data, qualitatives)
+    plot_distribution(train_data)
+    check_normality(train_data)
+    plot_quantitatives(train_data, quantitatives)
+    plot_qualitatives(train_data, qualitatives)
 
     # Encode qualitative variables to quantitative ones
     train_data, test_data = encode_qualitatives(train_data, test_data, qualitatives)
-    qualitatives_encoded = [q + '_E' for q in qualitatives]
-    features = quantitatives + qualitatives_encoded
+    features = quantitatives + qualitatives
 
     # Check the correlation between the variables
-    # plot_correlation(train_data, quantitatives + qualitatives_encoded + ['SalePrice'])
-    # plot_paircorrelation(train_data, quantitatives + qualitatives_encoded)
+    train_data, test_data = fill_nan(train_data, test_data, features)
+    plot_correlation(train_data, features + ['SalePrice'])
+    plot_paircorrelation(train_data, features)
 
     # feature combination and dimension_reduction
-    train_data, test_data = fill_nan(train_data, test_data, features)
-    train_data, test_data, major_factors = find_major_factors(train_data, test_data, features)
-    X, Y, X_test = get_values(train_data, test_data, features)
+    train_data, test_data, all_features = create_new_features(train_data, test_data)
+    train_data, test_data, major_factors = find_major_factors(train_data, test_data, all_features)
+    X, Y, X_test = get_values(train_data, test_data, major_factors)
     X, X_test = feature_combination(X, X_test)
-    X, X_test = dimension_reduction(X, X_test)
+    X, X_test = dimension_reduction(X, X_test, n_components=200)
     X, X_test = scaling(X, X_test)
 
     ### Regression ###
-    # test_pred = {}
-    # test_pred['linear'] = linear_regression(X, Y, X_test)
-    # test_pred['lasso'] = lasso_regression(X, Y, X_test)
-    # test_pred['ridge'] = ridge_regression(X, Y, X_test)
-    # test_pred['huber'] = huber_regression(X, Y, X_test)
-    # test_pred['kernel_ridge'] = kernel_ridge_regression(X, Y, X_test)
-    # test_pred['svm'] = svm_regression(X, Y, X_test)
-    # test_pred['random_forest'] = random_forest_regression(X, Y, X_test)
-    # test_pred['bagging'] = bagging_regression(X, Y, X_test)
-    # test_pred['adaboost'] = adaboost_regression(X, Y, X_test)
-    # test_pred['xgboost'] = xgboost_regression(X, Y, X_test)
-    # test_pred['lightgbm'] = lightgbm_regression(X, Y, X_test)
-    # test_pred['mlp'] = mlp_regression(X, Y, X_test)
-
-    # scores_df = compare_methods('./score', 'comparison.csv')
-
-    # give_final_prediction(test_data, test_pred, scores_df, 'test_pred.csv', 'submission.csv')
+    # Regression with diversed models
+    test_pred = {}
+    test_pred['linear'] = linear_regression(X, Y, X_test)
+    test_pred['lasso'] = lasso_regression(X, Y, X_test)
+    test_pred['ridge'] = ridge_regression(X, Y, X_test)
+    test_pred['huber'] = huber_regression(X, Y, X_test)
+    test_pred['kernel_ridge'] = kernel_ridge_regression(X, Y, X_test)
+    test_pred['svm'] = svm_regression(X, Y, X_test)
+    test_pred['random_forest'] = random_forest_regression(X, Y, X_test)
+    test_pred['bagging'] = bagging_regression(X, Y, X_test)
+    test_pred['adaboost'] = adaboost_regression(X, Y, X_test)
+    test_pred['xgboost'] = xgboost_regression(X, Y, X_test)
+    test_pred['lightgbm'] = lightgbm_regression(X, Y, X_test)
+    test_pred['mlp'] = mlp_regression(X, Y, X_test)
     
-
-
-
-
+    # Compare the models
+    scores_df = compare_methods('./score', 'comparison.csv')
+    
+    # Give final prediction on the test set
+    give_final_prediction(test_data, test_pred, scores_df, 'test_pred.csv', 'submission.csv')
+    
