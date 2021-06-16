@@ -322,7 +322,7 @@ def create_new_features(train_data, test_data):
         data["Condition1_and_TotalHouse"] = data['Condition1'] * data['TotalHouseArea']
         data["Condition1_and_OverallQual"] = data['Condition1'] + data['OverallQual']
         data["Bsmt"] = data["BsmtFinSF1"] + data['BsmtFinSF2'] + data['BsmtUnfSF']
-        data["Rooms"] = data["FullBath"]+data["TotRmsAbvGrd"]
+        data["Rooms"] = data["FullBath"] + data["TotRmsAbvGrd"]
         data["PorchArea"] = data["OpenPorchSF"] + data["EnclosedPorch"] + data["3SsnPorch"] + data["ScreenPorch"]
         data["TotalPlace"] = data["TotalAllArea"] + data["PorchArea"]
     
