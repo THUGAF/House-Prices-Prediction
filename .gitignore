@@ -2,6 +2,9 @@
 data/
 img/
 score/
+poster/
+Proposal/
+Report*/
 *.csv
 *.log
 *.txt
